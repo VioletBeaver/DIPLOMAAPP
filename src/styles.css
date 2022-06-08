@@ -20,6 +20,21 @@ body {
   display: flex;
   align-items: center;
   background: #5EC58E;
+  justify-content: center;
+}
+
+.header div button {
+  background: #E7FFF7;
+  padding: 8px;
+}
+
+.header div {
+  align-items: stretch;
+}
+
+.header div input {
+  padding: 8px;
+  border: none;
 }
 
 .main-content {
