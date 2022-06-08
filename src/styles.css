@@ -25,16 +25,25 @@ body {
 
 .header div button {
   background: #E7FFF7;
-  padding: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
 .header div {
   align-items: stretch;
+  width: 492px;
+  overflow: hidden;
 }
 
-.header div input {
+.header div label {
+  flex: 1;
+  height: 100%;
+}
+
+.header div label input {
   padding: 8px;
   border: none;
+  width: 100%;
 }
 
 .main-content {
