@@ -183,6 +183,7 @@ it('task', () => {
     const indexFile = Cypress.env('indexFile')
     const indexPath = indexFile ? `/${indexFile}.html` : '';
     cy.visit(`http://localhost:5000${indexPath}`);
+    cy.wait(5000);
     cy.matchImageSnapshot({
       capture: 'fullPage',
       scale: true,
@@ -245,7 +246,10 @@ it('task', () => {
           const properlyTaggedTextBlocks =
             Object
               .values(tagsUsedForTextBlocks)
-              .filter(({ actual, allowed }) => actual.every(tag => allowed.includes(tag)))
+              .filter(({ actual, allowed }) =>
+                actual.every(tag => allowed.includes(tag)) &&
+                allowed.every(tag => actual.includes(tag))
+              )
               .length /
             Object.keys(tagsUsedForTextBlocks).length * 100;
           const absPosUsage = absPosPropertiesAmount / totalPropertiesAmount;
