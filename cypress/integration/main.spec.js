@@ -13,7 +13,7 @@ function extractPureText(node) {
       textParts.push(child.textContent);
     }
   });
-  return textParts.join('').replace(/\s+/g, ' ').trim();
+  return textParts.join('').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 const ANY = '__any_tag__';
@@ -24,7 +24,7 @@ function composeAllowedFor(allowedForAsArray) {
     const tag = providedTag || ANY;
     if (content) {
       content.forEach(textBlock => {
-        set(rule, [tag, textBlock], true);
+        set(rule, [tag, textBlock.toLowerCase()], true);
       });
     } else {
       set(rule, tag, true);
@@ -115,7 +115,7 @@ function getAbsPosAddition(propertiesBlock) {
 }
 
 function getRawSizingAddition(propertiesBlock) {
-  return Object.values(propertiesBlock).filter(propertyValue => /\)|\d\s*px/.test(propertyValue)).length;
+  return Object.values(propertiesBlock).filter(propertyValue => /(\)|[1-9]|(?<!\s|^|\n)0)\s*px/.test(propertyValue)).length;
 }
 
 /**
@@ -171,7 +171,8 @@ it('task', () => {
       if (!content) {
         usedTags[tag] = false;
       } else {
-        content.forEach(textBlock => {
+        content.forEach(rawTextBlock => {
+          const textBlock = rawTextBlock.toLowerCase();
           if (!tagsUsedForTextBlocks[textBlock]) {
             tagsUsedForTextBlocks[textBlock] = { allowed: [], actual: [] };
           }
@@ -194,9 +195,6 @@ it('task', () => {
     cy.window().then(win => {
       cy.document().then(doc => {
         const allCssRules = extractAllCssRules(doc, win);
-        totalPropertiesAmount += allCssRules
-          .map(getProperties)
-          .reduce((result, properties) => result + Object.keys(properties).length, 0);
         cy.get('body').then((body) => {
           body.contents().map(function () {
             const nodes = [this, ...extractChildren(this)];
@@ -214,7 +212,11 @@ it('task', () => {
 
               const allCssPropertiesForNode = getMatchingCssRules(node, allCssRules).map(getProperties);
               const allStylePropertiesForNode = getProperties(node);
+
               totalPropertiesAmount += Object.keys(allStylePropertiesForNode).length;
+              totalPropertiesAmount += allCssPropertiesForNode.reduce(
+                (result, properties) => result + Object.keys(properties).length, 0
+              );
 
               if (
                 !get(absPosAllowedFor, [tagName, pureText]) &&
