@@ -189,7 +189,7 @@ it('task', () => {
       scale: true,
       overwrite: true,
       clip: { x: left, y: 0, width: right - left, height: bottom }
-    });
+    }).as('snapshotStats');
 
     cy.window().then(win => {
       cy.document().then(doc => {
@@ -252,8 +252,8 @@ it('task', () => {
               )
               .length /
             Object.keys(tagsUsedForTextBlocks).length * 100;
-          const absPosUsage = absPosPropertiesAmount / totalPropertiesAmount;
-          const rawSizingUsage = rawSizingPropertiesAmount / totalPropertiesAmount;
+          const absPosUsage = absPosPropertiesAmount / totalPropertiesAmount * 100;
+          const rawSizingUsage = rawSizingPropertiesAmount / totalPropertiesAmount * 100;
 
           const report = {
             detail: {
@@ -270,7 +270,12 @@ it('task', () => {
               rawSizingUsage
             }
           };
-          cy.writeFile('report.json', JSON.stringify(report, null, '  '));
+          cy.get('@snapshotStats').then(snapshotStats => {
+            if (snapshotStats?.diffRatio) {
+              report.summary.diffPercentage = snapshotStats.diffRatio * 100;
+            }
+            cy.writeFile('report.json', JSON.stringify(report, null, '  '));
+          });
         });
       });
     });
